@@ -4,30 +4,11 @@ mod player;
 use player::*;
 use std::collections::HashMap;
 use map::*;
-use macroquad::{prelude::*, window};
+use macroquad::{math, prelude::*, window};
 use miniquad::window::order_quit;
 
-pub const TILE_SIZE: f32 = 40.0;
-pub struct U8Vec2 {
-    pub x: u8,
-    pub y: u8
-}
-pub struct Tile {
-    size: f32,
-    abs_pos: Vec2,
-    tile_pos: U8Vec2
-}
-impl Default for Tile {
-    fn default() -> Self {
-        Tile {
-            size: TILE_SIZE,
-            abs_pos: Vec2 { x: 0.0, y: 0.0 },
-            tile_pos: U8Vec2 { x: 0, y: 0 }
-        }
-    }
-}
-fn create_game_map(map: &Vec<Vec<u8>>) -> HashMap<(u8,u8),Tile> {
-    let tile_hash_map: HashMap<(u8,u8), Tile> = HashMap::new();
+fn create_game_map(map: &Vec<Vec<u8>>) -> HashMap<(u8,u8), Tile> {
+    let mut tile_hash_map: HashMap<(u8,u8), Tile> = HashMap::new();
     for (y, row) in map.into_iter().enumerate() {
         for (x, tile) in row.into_iter().enumerate() {
             if *tile == 1 {
@@ -43,7 +24,8 @@ fn create_game_map(map: &Vec<Vec<u8>>) -> HashMap<(u8,u8),Tile> {
                     new_tile.size, 
                     new_tile.size, 
                     GRAY, 
-                )
+                );
+                tile_hash_map.insert((y as u8,x as u8), new_tile);
             }
         }
     }
@@ -63,7 +45,10 @@ async fn main() {
         speed: Vec2 {
             x: 0.,
             y: 0.
-        }
+        },
+        go_right: false,
+        go_left: false,
+        go_last: HorizontalDirection::None
     };
     let game_map = create_game_map(&_map1);
     
@@ -73,29 +58,57 @@ async fn main() {
     );
 
     loop {
+        let delta_time = get_frame_time() * 100.;
         if is_key_pressed(KeyCode::Right) {
-            player.speed.x = 3.
+            player.go_right = true;
+            player.go_last = HorizontalDirection::Right;
         }
         if is_key_pressed(KeyCode::Left) {
-            player.speed.x += -3.
+            player.go_left = true;
+            player.go_last = HorizontalDirection::Left;
         }
-        if is_key_released(KeyCode::Right) || is_key_released(KeyCode::Left) {
-            player.speed.x = 0.
+        if is_key_released(KeyCode::Right) {
+            player.go_right = false;
+            if player.go_left {
+                player.go_last = HorizontalDirection::Left
+            }
+        } 
+        if is_key_released(KeyCode::Left) {
+            player.go_left = false;
+            if player.go_right {
+                player.go_last = HorizontalDirection::Right
+            }
         }
+
+        if !player.go_left && !player.go_right {
+            player.go_last = HorizontalDirection::None
+        }
+
         if is_key_pressed(KeyCode::Up) {}
         if is_key_pressed(KeyCode::Down) {}
         if is_key_pressed(KeyCode::Z) {
-            player.speed.y -= 8.
+            if player.speed.y > -10.0 {
+                player.speed.y = -5.
+            }
         }
         if is_key_pressed(KeyCode::Escape) {
             order_quit()
         }
-
-        if player.speed.y < 3. {
-            player.speed.y += 0.5
+        match player.go_last {
+            HorizontalDirection::Right => player.speed.x = 2.5,
+            HorizontalDirection::Left => player.speed.x = -2.5,
+            HorizontalDirection::None => player.speed.x = 0.0,
         }
-        player.position.y += player.speed.y;
-        player.position.x += player.speed.x;
+        if player.speed.y < 5. {
+            player.speed.y += 0.2
+        }
+
+        player.check_collision_vertical(&game_map);
+        player.check_collision_horizontal(&game_map);
+
+        player.position.y += player.speed.y * delta_time;
+        player.position.x += player.speed.x * delta_time;
+
 
 
         clear_background(BLACK);

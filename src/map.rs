@@ -1,26 +1,27 @@
 use::macroquad::prelude::Vec2;
 
-#[derive(Debug)]
-pub struct Tile {
-    pub position: Vec2, 
-    pub size: Vec2,
-}
+pub const TILE_SIZE: f32 = 40.0;
 
-impl Tile {
-    pub fn new(pos_x: usize, pos_y:usize) -> Self {
-        let size : f32 = 40.0;
+#[derive(Debug)]
+pub struct U8Vec2 {
+    pub x: u8,
+    pub y: u8
+}
+pub struct Tile {
+    pub size: f32,
+    pub abs_pos: Vec2,
+    pub tile_pos: U8Vec2
+}
+impl Default for Tile {
+    fn default() -> Self {
         Tile {
-            position: Vec2 { 
-                x: (pos_x as f32) * size,
-                y: (pos_y as f32) * size
-            },
-            size:  Vec2 {
-                x: size,
-                y: size
-            }
+            size: TILE_SIZE,
+            abs_pos: Vec2 { x: 0.0, y: 0.0 },
+            tile_pos: U8Vec2 { x: 0, y: 0 }
         }
     }
 }
+
 
 pub fn get_map() -> Vec<Vec<u8>> {
 
@@ -34,9 +35,9 @@ pub fn get_map() -> Vec<Vec<u8>> {
         vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        vec![1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+        vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        vec![1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
         vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
         vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
