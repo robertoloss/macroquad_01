@@ -4,7 +4,7 @@ mod player;
 use player::*;
 use std::collections::HashMap;
 use map::*;
-use macroquad::{math, prelude::*, window};
+use macroquad::{prelude::*, window};
 use miniquad::window::order_quit;
 
 fn create_game_map(map: &Vec<Vec<u8>>) -> HashMap<(u8,u8), Tile> {
@@ -108,12 +108,14 @@ async fn main() {
 
         player.position.y += player.speed.y * delta_time;
         player.position.x += player.speed.x * delta_time;
-
+        
+        let fps = get_fps().to_string();
 
 
         clear_background(BLACK);
         draw_rectangle(player.position.x, player.position.y, 40.0, 40.0, RED);
         create_game_map(&_map1);
+        draw_text(&fps, 40.0, 40.0, 24.0, YELLOW);
 
         next_frame().await
     }
