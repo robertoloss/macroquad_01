@@ -56,8 +56,12 @@ async fn main() {
         _map1[0].len() as f32 * TILE_SIZE,
         (_map1.len() as f32 * TILE_SIZE) + TILE_SIZE
     );
+    let mut counter: u64 = 0;
+    let mut print_fps: String = "".to_string();
+    let mut print_delta_time: String = "".to_string();
 
     loop {
+        counter = counter + 1;
         let delta_time = get_frame_time() * 100.;
         if is_key_pressed(KeyCode::Right) {
             player.go_right = true;
@@ -115,7 +119,15 @@ async fn main() {
         clear_background(BLACK);
         draw_rectangle(player.position.x, player.position.y, 40.0, 40.0, RED);
         create_game_map(&_map1);
-        draw_text(&fps, 40.0, 40.0, 24.0, YELLOW);
+        if counter == 1 {
+            print_fps = fps.clone();
+            print_delta_time = delta_time.to_string();
+        }
+        if counter > 16 {
+            counter = 0;
+        }
+        draw_text(&print_fps, 40.0, 60.0, 24.0, YELLOW);
+        draw_text(&print_delta_time, 40.0, 80.0, 24.0, YELLOW);
 
         next_frame().await
     }
